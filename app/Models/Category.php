@@ -36,7 +36,7 @@ class Category extends Model implements Auditable
 	
 	public function products()
 	{
-		return $this->hasMany(Product::class, Product::getFieldMapping()['CAT'], self::getFieldMapping()['ID']);
+		return $this->hasMany(Product::class, Product::getFieldMapping()['CAT'], self::getFieldMapping()['CAT_ID']);
 	}
 	
 	public static function getDataWithDetails(int $id = 0)
@@ -44,7 +44,7 @@ class Category extends Model implements Auditable
 		$fields = array_merge(
 			self::getSafeFields(),
 			[
-				self::getFieldMapping()['ID'],
+				self::getFieldMapping()['CAT_ID'],
 			]
 		);
 		$query = self::query();
@@ -53,7 +53,7 @@ class Category extends Model implements Auditable
 			'products as PRODUCTS'
 		]);
 		
-		$query->when($id != 0, fn($q) => $q->where(self::getFieldMapping()['ID'], $id));
+		$query->when($id != 0, fn($q) => $q->where(self::getFieldMapping()['CAT_ID'], $id));
 		
 		$data = $query->get();
 		

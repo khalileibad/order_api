@@ -95,7 +95,7 @@ class CategoryController extends Controller
 			}
 			
 			$category = $category[0];
-			if(!empty($category['PRODUCTS'])))
+			if(!empty($category['PRODUCTS']))
 			{
 				return response()->json([
 					'success' => false,

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\PaymentController;
 
 // ==================== Public Routes ====================
 Route::prefix('auth')->group(function () {
@@ -52,8 +53,9 @@ Route::prefix('categories')->group(function () {
 
 // ==================== Customer Routes ====================
 Route::prefix('orders')->middleware(['auth:api', 'role:customer'])->group(function () {
-    /*/ Products
-    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/gateway', [PaymentController::class, 'index']);
+    
+	/*/ Products
     Route::get('/products/{id}', [ProductController::class, 'index']);
     Route::get('/', [ProductController::class, 'categories']);
     Route::get('/categories/{id}', [ProductController::class, '']);
