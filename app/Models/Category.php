@@ -27,8 +27,8 @@ class Category extends Model implements Auditable
 		$table = (new static)->getTable();
 		
 		return [
-			'CAT_ID'        => 'cat_id',
-			'CAT_NAME'      => 'cat_name',
+			'CAT_ID'	=> 'cat_id',
+			'CAT_NAME'	=> 'cat_name',
 			'CR_DATE'	=> $table . '.created_at',
 			'UP_DATE'	=> $table . '.updated_at',
 		];

@@ -11,7 +11,7 @@ class ProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,8 +29,8 @@ class ProductRequest extends FormRequest
             'sku' => 'nullable|string|unique:products,pro_sku',
             'barcode' => 'nullable|string|unique:products,barcode',
             'attributes' => 'nullable|array',
-            'is_active' => 'boolean',
-            'category_id' => 'nullable|exists:categories,cat_id'
+            'is_active' => 'nullable|boolean',
+            'category_id' => 'required|exists:categories,cat_id'
         ];
     }
 	

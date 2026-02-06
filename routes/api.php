@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\API\Admin\ProductController;
+use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\CategoryController;
 
 // ==================== Public Routes ====================
 Route::prefix('auth')->group(function () {
@@ -20,20 +21,48 @@ Route::middleware(['auth:api', 'role:customer,admin'])->group(function () {
 
 // ==================== Admin Routes ====================
 Route::prefix('admin')->middleware(['auth:api', 'role:admin'])->group(function () {
+    // Categories
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [CategoryController::class, 'index']);
+        Route::post('/', [CategoryController::class, 'new_category']);
+        Route::post('/{id}', [CategoryController::class, 'update_category']);
+        Route::delete('/{id}', [CategoryController::class, 'delete_category']);
+	});
     
-    // Products
+	// Products
     Route::prefix('products')->group(function () {
         Route::get('/', [ProductController::class, 'index']);
-        Route::post('/', [ProductController::class, 'store']);
-        Route::get('/export', [ProductController::class, 'export']);
-        Route::get('/{id}', [ProductController::class, 'show']);
-        Route::put('/{id}', [ProductController::class, 'update']);
-        Route::patch('/{id}/stock', [ProductController::class, 'updateStock']);
-        Route::delete('/{id}', [ProductController::class, 'destroy']);
-        
-        // استعادة وحذف نهائي
-        Route::post('/{id}/restore', [ProductController::class, 'restore']);
-        Route::delete('/{id}/force', [ProductController::class, 'forceDelete']);
-    });
+        Route::post('/', [ProductController::class, 'new_product']);
+        Route::post('/{id}', [ProductController::class, 'update_product']);
+        Route::delete('/{id}', [ProductController::class, 'delete_product']);
+	});
     
+});
+
+// ==================== Public Routes ====================
+Route::prefix('products')->group(function () {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/{id}', [ProductController::class, 'index']);
+});
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/{id}', [CategoryController::class, 'index']);
+});
+
+
+// ==================== Customer Routes ====================
+Route::prefix('orders')->middleware(['auth:api', 'role:customer'])->group(function () {
+    /*/ Products
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{id}', [ProductController::class, 'index']);
+    Route::get('/', [ProductController::class, 'categories']);
+    Route::get('/categories/{id}', [ProductController::class, '']);
+	
+	/*Route::prefix('products')->group(function () {
+        
+        Route::post('/', [ProductController::class, 'new_product']);
+        Route::post('/{id}', [ProductController::class, 'update_product']);
+        Route::delete('/{id}', [ProductController::class, 'delete_product']);
+	});
+    */
 });
