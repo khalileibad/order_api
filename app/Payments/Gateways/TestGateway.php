@@ -4,9 +4,16 @@ namespace App\Payments\Gateways;
 
 class TestGateway extends AbstractGateway
 {
-    protected string $name = 'test';
-    protected string $displayName = 'البوابة التجريبية';
+    protected string $name;
+    protected string $displayName;
+    protected string $note;
     
+	function __construct()
+	{
+		$this->name = env('PAYMENT_TEST_NAME', 'Test');
+		$this->displayName = env('PAYMENT_TEST_NAME', 'البوابة التجريبية');
+		$this->note = env('PAYMENT_TEST_NOTE', 'البوابة التجريبية');
+	}
     public function processPayment(array $data): array
     {
         $success = ($data['amount'] ?? 0) > 0;

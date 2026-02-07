@@ -9,6 +9,7 @@ abstract class AbstractGateway implements PaymentGatewayInterface
     protected array $config;
     protected string $name;
     protected string $displayName;
+    protected string $note;
     
     public function __construct(array $config = [])
     {
@@ -33,6 +34,7 @@ abstract class AbstractGateway implements PaymentGatewayInterface
     {
         return [
             'name' => $this->name,
+            'note' => $this->note,
             'display_name' => $this->displayName,
             'supports_refund' => method_exists($this, 'refundPayment'),
             'config_keys' => $this->getRequiredConfig(),

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\OrderController;
 
 // ==================== Public Routes ====================
 Route::prefix('auth')->group(function () {
@@ -12,6 +13,14 @@ Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
 	Route::get('refresh', [AuthController::class, 'refresh']);
+});
+Route::prefix('products')->group(function () {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/{id}', [ProductController::class, 'index']);
+});
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/{id}', [CategoryController::class, 'index']);
 });
 
 // ==================== All User Routes ====================
@@ -40,25 +49,16 @@ Route::prefix('admin')->middleware(['auth:api', 'role:admin'])->group(function (
     
 });
 
-// ==================== Public Routes ====================
-Route::prefix('products')->group(function () {
-    Route::get('/', [ProductController::class, 'index']);
-    Route::get('/{id}', [ProductController::class, 'index']);
-});
-Route::prefix('categories')->group(function () {
-    Route::get('/', [CategoryController::class, 'index']);
-    Route::get('/{id}', [CategoryController::class, 'index']);
-});
-
 
 // ==================== Customer Routes ====================
 Route::prefix('orders')->middleware(['auth:api', 'role:customer'])->group(function () {
-    Route::get('/gateway', [PaymentController::class, 'index']);
-    
-	/*/ Products
-    Route::get('/products/{id}', [ProductController::class, 'index']);
-    Route::get('/', [ProductController::class, 'categories']);
-    Route::get('/categories/{id}', [ProductController::class, '']);
+	Route::get('/gateway', [PaymentController::class, 'index']);
+	Route::get('/gateway/{id}', [PaymentController::class, 'show']);
+	
+    Route::post('/create', [OrderController::class, 'createOrder']);
+	
+	
+	
 	
 	/*Route::prefix('products')->group(function () {
         
