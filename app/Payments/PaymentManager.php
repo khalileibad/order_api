@@ -5,7 +5,6 @@ use App\Payments\Contracts\PaymentGatewayInterface;
 use App\Payments\Gateways\TestGateway;
 use App\Payments\Gateways\StripeGateway;
 use App\Payments\Gateways\PayPalGateway;
-use App\Payments\Gateways\MoyaEGPGateway;
 use Illuminate\Support\Manager;
 
 class PaymentManager extends Manager
@@ -28,11 +27,6 @@ class PaymentManager extends Manager
     public function createPaypalDriver()
     {
         return new PayPalGateway(config('payments.gateways.paypal', []));
-    }
-    
-    public function createMoyaEGPDriver()
-    {
-        return new MoyaEGPGateway(config('payments.gateways.moyaEGP', []));
     }
     
     public function getAvailableGateways(): array
