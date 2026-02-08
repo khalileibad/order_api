@@ -44,6 +44,7 @@ class StripeGateway implements PaymentGatewayInterface
                 return [
                     'success' => false,
                     'error' => 'payment_failed',
+                    'status' => 'payment_failed',
                     'error_message' => 'Failed to process payment via Stripe',
                     'decline_code' => 'insufficient_funds',
                     'gateway' => $this->name,
@@ -83,6 +84,7 @@ class StripeGateway implements PaymentGatewayInterface
             return [
                 'success' => false,
                 'error' => 'gateway_error',
+                'status' => 'gateway_error',
                 'error_message' => $e->getMessage(),
                 'gateway' => $this->name,
             ];

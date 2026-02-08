@@ -193,7 +193,7 @@ class PaymentController extends Controller
 				'source' => 'api',
 			];
 			
-			$PaymentResult = $this->paymentService->initiateCheckout($data);
+			$PaymentResult = $this->paymentService->processPayment($data);
             
 			if(!$PaymentResult['success'])
 			{

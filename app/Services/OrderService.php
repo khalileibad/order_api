@@ -132,12 +132,5 @@ class OrderService
 		}
     }
     
-    private function updateInventory(array $items)
-    {
-		foreach ($items as $item) {
-            Product::where('id', $item['product_id'])->decrement('pro_stock', $item['quantity']);
-			
-		}
-    }
     
 }

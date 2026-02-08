@@ -39,15 +39,8 @@ class ProcessPaymentRequest extends FormRequest
     public function rules(): array
     {
 		return [
-            'gateway_reference' => ['required', 'string'],
-            'gateway_transaction_id' => ['nullable', 'string'],
-            'payment_id' => ['required', 'string'],
-            
-			'gateway_response' => ['nullable', 'array'],
-            'gateway_response.*' => ['nullable'],
-            
-			'card_token' => ['nullable', 'string'],
-            'save_card' => ['boolean'],
+            'transaction_id' => "required|exists:payments,gateway_transaction_id,order_id,$this->order_id",
+			'payment_token' => ['nullable', 'string'],
             
         ];
     }
@@ -55,8 +48,8 @@ class ProcessPaymentRequest extends FormRequest
 	public function messages(): array
     {
 		return [
-			'gateway_reference.required' => 'مرجع عملية الدفع مطلوب',
-            'verification_token.required' => 'رمز التحقق مطلوب للطلبات غير المسجلة',
+			'transaction_id.required' => 'مرجع عملية الدفع مطلوب',
+			'transaction_id.exists' => 'لم يتم التعرف على المرجع',
             
         ];
     }

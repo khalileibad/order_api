@@ -148,8 +148,14 @@ class PaymentService
 				
 				$gateway = $this->paymentGatewayService->driver($order['GATEWAY']);
 				
+				$meta = $order['P_META'] ?? "{}";
+				$meta = (array) json_decode($meta);
+				\Log::info(gettype($meta));
+				
+				$meta = array_merge($meta,['gateway_payment_response' => $paymentResult]);
+				\Log::info($meta);
 				//Update Payment transaction after Payment
-				$transaction = Payment::findOrFail($data['PAYMENT']);
+				$transaction = Payment::findOrFail($order['PAYMENT']);
 				$transaction->update([
 					'gateway_transaction_id' => $paymentResult['gateway_transaction_id'] ?? null,
 					'gateway_reference' => $paymentResult['reference'] ?? null,
@@ -158,16 +164,18 @@ class PaymentService
 					'status' => $paymentResult['status'] ?? 'pending',
 					'paid_at' => ($paymentResult['status'] == 'paid')? now() : null,
 					'expires_at' => $paymentResult['expires_at'] ?? now()->addMinutes(30),
-					'metadata' => json_encode($data['P_META'] ?? [], [
-						'save_card' => $data['save_card']??false,
-						'card_token' => $data['card_token']?? null,
-						]),
+					'metadata' => json_encode($meta),
 				]);
 				
 				if($paymentResult['status'] == 'paid'){
 					$upd_order = Order::findOrFail($order['ID']);
 					$upd_order->status = "PAIED";
 					$upd_order->save();
+					
+					$Product = \App\Models\Product;
+					foreach ($order['ITEMS'] as $item) {
+						$Product::where('pro_id', $item['PRODUCT'])->decrement('pro_stock', $item['QUANTITY']);
+					}
 				}
 					
 				return [
@@ -297,17 +305,7 @@ class PaymentService
 			];
 		}
 		
-		if($order['G_TRANSACTION'] != $data['gateway_transaction_id']) {
-			return [
-				'valid' => false,
-				'message' => 'رقم تحويلة البوابة غير صحيح',
-				'data' => [
-					'TRANSACTION' => $order['G_TRANSACTION']
-				]
-			];
-		}
-		
-		if($order['G_TRANSACTION'] != $data['gateway_transaction_id']) {
+		if($order['G_TRANSACTION'] != $data['transaction_id']) {
 			return [
 				'valid' => false,
 				'message' => 'رقم تحويلة البوابة غير صحيح',
@@ -327,6 +325,7 @@ class PaymentService
     {
         return [
             'transaction_id' => $order['TRANSACTION'],
+            'payment_token' => $data['payment_token'],
             'order_id' => $order['ID'],
             'order_number' => $order['NUMBER'],
             'amount' => $order['TOTAL'],
@@ -340,7 +339,7 @@ class PaymentService
             'billing_address' => $order['BILLING_ADD'],
             'shipping_address' => $order['SHIPPING_ADD'],
             'items' => $order['ITEMS'],
-            'payment_method' => $data['payment_method'],
+            'payment_method' => $order['P_METHOD'],
             'return_url' => $data['return_url'] ?? config('app.url') . '/payment/success',
             'cancel_url' => $data['cancel_url'] ?? config('app.url') . '/payment/cancel',
             'metadata' => $order['P_META'] ?? [],
