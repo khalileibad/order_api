@@ -1,59 +1,36 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📦 Order & Payment Management API (Laravel)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[cite_start]This project is a RESTful API designed to manage orders and payments, built with a strong focus on **SOLID principles**, **Clean Code**, and **Extensibility**[cite: 3, 18]. [cite_start]The system is architected to allow the addition of new payment gateways with minimal effort using the **Strategy Design Pattern**[cite: 4, 13, 28].
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🛠 Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### ADMIN
+- [cite_start]**Manage Categories and Prodcuts**: Supports Admin user To Manage Categories and Prodcuts Data[cite: 8].
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🛒 Order Management
+- [cite_start]**Create Order**: Supports user details and nested purchased items with automatic total calculation[cite: 8].
+- [cite_start]**Update Order**: Modify existing order information[cite: 9].
+- [cite_start]**View Orders**: Retrieve all orders with support for pagination and filtering by status (`pending`, `confirmed`, `cancelled`)[cite: 11, 20].
 
-## Learning Laravel
+### 💳 Payment Management
+- [cite_start]**Process Payment**: Simulates payment processing (ID, Order ID, Status, Method)[cite: 12].
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🏗 Design Patterns & Architecture
 
-## Laravel Sponsors
+### Strategy Pattern (Extensibility)
+[cite_start]The project implements a `PaymentStrategy` interface[cite: 28]. To add a new gateway:
+1. Create a new class implementing `PaymentGatewayInterface`.
+2. Implement the `process()` method.
+3. [cite_start]Register the new gateway in the configuration/provider.
+[cite_start]This ensures the system is **Open for extension but Closed for modification**[cite: 28, 39].
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Security & Validation
+- [cite_start]**Authentication**: Secured via **JWT (JSON Web Token)** for registration and login endpoints[cite: 22, 23].
+- [cite_start]**Validation**: All inputs are strictly validated with meaningful error messages[cite: 25, 26].
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
