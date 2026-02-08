@@ -108,23 +108,25 @@ class Order extends Model implements Auditable
 			
 			if($order->payment)
 			{
-				$order->PAYMENT = $order->payment->pay_id;
+				$order->PAYMENT 	= $order->payment->pay_id;
 				$order->TRANSACTION = $order->payment->transaction_id;
-				$order->GATEWAY = $order->payment->gateway;
-				$order->P_METHOD = $order->payment->payment_method;
-				$order->P_AMOUNT = $order->payment->amount;
-				$order->P_AMOUNT = $order->payment->amount;
-				$order->P_STATUS = $order->payment->status;
+				$order->GATEWAY 	= $order->payment->gateway;
+				$order->P_METHOD 	= $order->payment->payment_method;
+				$order->P_AMOUNT 	= $order->payment->amount;
+				$order->P_AMOUNT 	= $order->payment->amount;
+				$order->P_STATUS 	= $order->payment->status;
 				$order->G_TRANSACTION = $order->payment->gateway_transaction_id;
-				$order->G_REFRENCE = $order->payment->gateway_reference;
-				$order->G_RESPONSE = $order->payment->gateway_response;
-				$order->URL = $order->payment->payment_url;
-				$order->G_DESCR = $order->payment->description;
-				$order->PAIED = $order->payment->paid_at;
-				$order->EXIRES = $order->payment->expires_at;
+				$order->G_REFRENCE 	= $order->payment->gateway_reference;
+				$order->G_RESPONSE 	= $order->payment->gateway_response;
+				$order->URL 		= $order->payment->payment_url;
+				$order->G_DESCR 	= $order->payment->description;
+				$order->PAIED 		= $order->payment->paid_at;
+				$order->EXIRES 		= $order->payment->expires_at;
+				$order->P_META 		= $order->payment->metadata;
 			}else{
 				$order->PAYMENT = null;
 			}
+			unset($order->payment);
 			return $order;
 		});
 		

@@ -20,6 +20,21 @@ class StripeGateway implements PaymentGatewayInterface
 		$this->note = env('PAYMENT_STRIPE_NOTE', 'Stripe Gateway');
     }
     
+	public function initiatePayment(array $data): array
+    {
+		$paymentIntentId = 'pi_' . strtoupper(uniqid());
+		$clientSecret = $paymentIntentId . '_secret_' . strtoupper(uniqid());
+            
+		return [
+			'gateway' => $this->name,
+			'transaction_id' => $paymentIntentId,
+			'client_secret' => $clientSecret,
+			'simulated' => true,
+			'amount' => $data['TOTAL'] ?? 0,
+			'currency' => $data['CURRENCY'] ?? 'EGP',
+		];
+	}
+	
     public function processPayment(array $data): array
     {
         try {
@@ -44,8 +59,8 @@ class StripeGateway implements PaymentGatewayInterface
                 'transaction_id' => $paymentIntentId,
                 'payment_intent' => $paymentIntentId,
                 'client_secret' => $clientSecret,
-                'amount' => $data['amount'] ?? 0,
-                'currency' => strtolower($data['currency'] ?? 'EGP'),
+                'amount' => $data['TOTAL'] ?? 0,
+				'currency' => strtolower($data['CURRENCY'] ?? 'egp'),
                 'status' => 'requires_payment_method',
                 'requires_action' => true,
                 'next_action' => [

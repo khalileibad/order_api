@@ -20,6 +20,28 @@ class PayPalGateway implements PaymentGatewayInterface
 		$this->note = env('PAYMENT_PAYPAL_NOTE', 'PayPal Gateway');
     }
     
+	public function initiatePayment(array $data): array
+    {
+		$paymentId = 'PAY-' . strtoupper(uniqid());
+		$approvalToken = 'EC-' . strtoupper(uniqid());
+			
+		$mode = $this->config['mode'] ?? 'sandbox';
+		$baseUrl = $mode === 'sandbox' 
+				? 'https://www.sandbox.paypal.com' 
+				: 'https://www.paypal.com';
+		
+		return [
+			'gateway' => $this->name,
+			'transaction_id' => $paymentId,
+			'payment_id' => $paymentId,
+			'approval_token' => $approvalToken,
+			'approval_url' => "{$baseUrl}/checkoutnow?token={$approvalToken}",
+			'simulated' => true,
+			'amount' => $data['TOTAL'] ?? 0,
+			'currency' => $data['CURRENCY'] ?? 'EGP',
+		];
+	}
+	
     public function processPayment(array $data): array
     {
         try {
@@ -53,8 +75,8 @@ class PayPalGateway implements PaymentGatewayInterface
                 'intent' => 'sale',
                 'state' => 'created',
                 'amount' => [
-                    'total' => $data['amount'] ?? 0,
-                    'currency' => strtoupper($data['currency'] ?? 'EGP'),
+                    'total' => $data['TOTAL'] ?? 0,
+                    'currency' => strtoupper($data['CURRENCY'] ?? 'EGP'),
                 ],
                 'redirect_urls' => [
                     'return_url' => $this->config['return_url'] ?? '',

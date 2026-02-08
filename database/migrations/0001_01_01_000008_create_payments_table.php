@@ -28,6 +28,7 @@ return new class extends Migration
 			$table->unsignedBigInteger('cutomer');
 			$table->json('metadata')->nullable();
 			$table->text('description')->nullable();
+			$table->timestamp('initiate_at')->nullable();
 			$table->timestamp('paid_at')->nullable();
 			$table->timestamp('expires_at')->nullable();
 			$table->timestamps();

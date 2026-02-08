@@ -14,7 +14,23 @@ class TestGateway extends AbstractGateway
 		$this->displayName = env('PAYMENT_TEST_NAME', 'البوابة التجريبية');
 		$this->note = env('PAYMENT_TEST_NOTE', 'البوابة التجريبية');
 	}
-    public function processPayment(array $data): array
+	
+	public function initiatePayment(array $data): array
+    {
+		$paymentIntentId = 'TEST_' . strtoupper(uniqid());
+		$clientSecret = $paymentIntentId . '_secret_' . strtoupper(uniqid());
+            
+		return [
+			'gateway' => $this->name,
+			'transaction_id' => $paymentIntentId,
+			'client_secret' => $clientSecret,
+			'simulated' => true,
+			'amount' => $data['TOTAL'] ?? 0,
+			'currency' => $data['CURRENCY'] ?? 'EGP',
+		];
+	}
+	
+	public function processPayment(array $data): array
     {
         $success = ($data['amount'] ?? 0) > 0;
         
@@ -25,8 +41,8 @@ class TestGateway extends AbstractGateway
             'message' => $success ? 'تمت معالجة الدفع بنجاح (تجريبي)' : 'فشل الدفع (تجريبي)',
             'gateway_response' => [
                 'simulated' => true,
-                'amount' => $data['amount'] ?? 0,
-                'currency' => $data['currency'] ?? 'EGP',
+				'amount' => $data['TOTAL'] ?? 0,
+				'currency' => $data['CURRENCY'] ?? 'EGP',
             ],
             'gateway' => $this->name,
         ];

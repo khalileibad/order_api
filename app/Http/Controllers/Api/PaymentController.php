@@ -151,8 +151,9 @@ class PaymentController extends Controller
                 'success' => true,
                 'message' => 'تم بدء عملية الدفع',
                 'data' => [
-                    'payment' => $PaymentResult['payment'],
                     'order' => $PaymentResult['order'],
+					'gateway' => $PaymentResult['gateway'],
+                    
                 ]
             ]);
             

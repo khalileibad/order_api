@@ -28,6 +28,7 @@ class Payment extends Model implements Auditable
 		'payment_url',
 		'metadata',
 		'description',
+		'initiate_at',
 		'paid_at',
 		'expires_at',
     ];
@@ -52,6 +53,7 @@ class Payment extends Model implements Auditable
 			'G_RESPONSE'	=> 'gateway_response',
 			'URL'		=> 'payment_url',
 			'DESCR'		=> 'description',
+			'INITIATE'	=> 'initiate_at',
 			'PAIED'		=> 'paid_at',
 			'EXIRES'	=> 'expires_at',
 			'CR_DATE'	=> $table . '.created_at',

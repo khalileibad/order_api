@@ -47,41 +47,49 @@ class PaymentService
 			}
 			
 			$gateway = $this->paymentGatewayService->driver($data['gateway']);
-			
-			if(!in_array($data['payment_method'],$gateway->getSupportedMethod()))
+			$methods = $gateway->getSupportedMethod();
+			if(!empty($methods) && !in_array($data['payment_method'],$methods))
 			{
 				return [
                     'success' => false,
                     'message' => 'طريقة الدفع غير مدعومة في هذه البوابة',
-                    'supported_methods' => $gateway->getSupportedMethod(),
+                    'supported_methods' => $methods,
 					'code' =>400
 				];
 			}
 			
 			return DB::transaction(function () use ($data,$order,$gateway) {
 				
-				$transaction = $this->createTransaction($order, $data);
+				$transactionId = 'TRX-' . strtoupper(Str::random(8)) . '-' . time();
 				
-				$paymentData = $this->preparePaymentData($order, $transaction, $data);
+				$paymentInitiate = $gateway->initiatePayment($order);
 				
-				//processing Payment
-				$paymentResult = $gateway->processPayment($paymentData);
-				
-				//Update Payment transaction after Payment
-				$transaction->update([
-					'gateway_transaction_id' => $paymentResult['gateway_transaction_id'] ?? null,
-					'gateway_reference' => $paymentResult['reference'] ?? null,
-					'payment_url' => $paymentResult['payment_url'] ?? null,
-					'gateway_response' => $paymentResult,
-					'status' => $paymentResult['status'] ?? 'pending',
-					'expires_at' => $paymentResult['expires_at'] ?? now()->addMinutes(30),
+				$transaction = Payment::create([
+					'order_id' => $order['ID'],
+					'transaction_id' => $transactionId,
+					'gateway' => $data['gateway'],
+					'payment_method' => $data['payment_method'],
+					'amount' => $order['TOTAL'],
+					'currency' => $order['CURRENCY'],
+					'status' => 'initiated',
+					'description' => "دفع للطلب #".$order['NUMBER'],
+					'cutomer' => $order['CUSTOMER'],
+					'gateway_transaction_id' => $paymentInitiate['transaction_id']?? null,
+					'payment_url' => $paymentInitiate['approval_url']?? null,
+					'metadata' => json_encode([
+						'items_count' => count($order['ITEMS']),
+						'ip_address' => $data['ip_address'] ?? null,
+						'user_agent' => $data['user_agent'] ?? null,
+						'gateway_response' =>$paymentInitiate
+					]),
+					'initiate_at' => now(),
+					'expires_at' => now()->addMinutes(30),
 				]);
-				
 				
 				return [
 					'success' => true,
-					'payment' => Payment::getDataWithDetails($transaction->pay_id),
-					'order' => Order::getDataWithDetails($order['ID']),
+					'gateway' => $paymentInitiate,
+					'order' => Order::getDataWithDetails($order['ID'])[0],
 					
 				];
 			});
@@ -99,7 +107,6 @@ class PaymentService
 				'code' =>500
             ];
         }
-		
 	}
     
 	public function processPayment($data)
@@ -121,7 +128,7 @@ class PaymentService
 			}
 			$order = $order[0];
 			
-			$validationResult = $this->validateOrderForProcessing($order);
+			$validationResult = $this->validateOrderForProcessing($order,$data);
 			
 			if (!$validationResult['valid']) {
 				return [
@@ -131,34 +138,44 @@ class PaymentService
 					'code' =>400
 					];
 			}
+			$gateway = $this->paymentGatewayService->driver($order['GATEWAY']);
 			
 			return DB::transaction(function () use ($data,$order,$gateway) {
 				
-				/*$gateway = $this->paymentGatewayService->driver($data['gateway']);
-				$transaction = $this->createTransaction($order, $data);
-				
-				$paymentData = $this->preparePaymentData($order, $transaction, $data);
-				
+				$paymentData = $this->preparePaymentData($order, $data);
 				//processing Payment
 				$paymentResult = $gateway->processPayment($paymentData);
 				
+				$gateway = $this->paymentGatewayService->driver($order['GATEWAY']);
+				
 				//Update Payment transaction after Payment
+				$transaction = Payment::findOrFail($data['PAYMENT']);
 				$transaction->update([
 					'gateway_transaction_id' => $paymentResult['gateway_transaction_id'] ?? null,
 					'gateway_reference' => $paymentResult['reference'] ?? null,
 					'payment_url' => $paymentResult['payment_url'] ?? null,
 					'gateway_response' => $paymentResult,
 					'status' => $paymentResult['status'] ?? 'pending',
+					'paid_at' => ($paymentResult['status'] == 'paid')? now() : null,
 					'expires_at' => $paymentResult['expires_at'] ?? now()->addMinutes(30),
+					'metadata' => json_encode($data['P_META'] ?? [], [
+						'save_card' => $data['save_card']??false,
+						'card_token' => $data['card_token']?? null,
+						]),
 				]);
 				
-				
+				if($paymentResult['status'] == 'paid'){
+					$upd_order = Order::findOrFail($order['ID']);
+					$upd_order->status = "PAIED";
+					$upd_order->save();
+				}
+					
 				return [
 					'success' => true,
-					'payment' => Payment::getDataWithDetails($transaction->pay_id),
 					'order' => Order::getDataWithDetails($order['ID']),
+					'payment' => $paymentResult,
 					
-				];*/
+				];
 			});
 		
 		} catch (\Exception $e) {
@@ -226,8 +243,18 @@ class PaymentService
         ];
     }
 	
-	private function validateOrderForProcessing($order)
+	private function validateOrderForProcessing($order,$data)
 	{
+		if (empty($order['PAYMENT'])) {
+			return [
+				'valid' => false,
+				'message' => 'ليجب بدء عملية الدفع أولاً',
+				'data' => [
+					'current_status' => $order['STATUS'],
+					'initiate_url' => route('api.payments.initiate', $order->id)
+				]
+			];
+		}
 		if ($order['EXIRES'] && strtotime($order['EXIRES']) < time()) {
 			return [
 				'valid' => false,
@@ -239,7 +266,7 @@ class PaymentService
 			];
 		}
     
-		if ($order['STATUS'] != 'PENDING')) {
+		if ($order['STATUS'] != 'PENDING') {
 			return [
 				'valid' => false,
 				'message' => 'لا يمكن معالجة الدفع للطلب في حالته الحالية',
@@ -260,7 +287,7 @@ class PaymentService
 			];
 		}
     
-		if ($order['TOTAL'] <= 0) {
+		if($order['TOTAL'] <= 0) {
 			return [
 				'valid' => false,
 				'message' => 'المبلغ الإجمالي للطلب غير صالح للدفع',
@@ -269,41 +296,37 @@ class PaymentService
 				]
 			];
 		}
-    
+		
+		if($order['G_TRANSACTION'] != $data['gateway_transaction_id']) {
+			return [
+				'valid' => false,
+				'message' => 'رقم تحويلة البوابة غير صحيح',
+				'data' => [
+					'TRANSACTION' => $order['G_TRANSACTION']
+				]
+			];
+		}
+		
+		if($order['G_TRANSACTION'] != $data['gateway_transaction_id']) {
+			return [
+				'valid' => false,
+				'message' => 'رقم تحويلة البوابة غير صحيح',
+				'data' => [
+					'TRANSACTION' => $order['G_TRANSACTION']
+				]
+			];
+		}
+		
 		return [
 			'valid' => true,
 			'message' => 'الطلب صالح للمعالجة'
 		];
 	}
 	
-	//New Payment Transaction
-	private function createTransaction($order , array $data)
-    {
-        $transactionId = 'TRX-' . strtoupper(Str::random(8)) . '-' . time();
-        
-        return Payment::create([
-            'order_id' => $order['ID'],
-            'transaction_id' => $transactionId,
-            'gateway' => $data['gateway'],
-            'payment_method' => $data['payment_method'],
-            'amount' => $order['TOTAL'],
-            'currency' => $order['CURRENCY'],
-            'status' => 'initiated',
-            'description' => "دفع للطلب #".$order['NUMBER'],
-            'cutomer' => $order['CUSTOMER'],
-            'metadata' => json_encode([
-                'items_count' => count($order['ITEMS']),
-                'ip_address' => $data['ip_address'] ?? null,
-                'user_agent' => $data['user_agent'] ?? null,
-            ]),
-            'expires_at' => now()->addMinutes(30),
-        ]);
-    }
-    
-    private function preparePaymentData($order, $transaction, array $data)
+	private function preparePaymentData($order, array $data)
     {
         return [
-            'transaction_id' => $transaction->transaction_id,
+            'transaction_id' => $order['TRANSACTION'],
             'order_id' => $order['ID'],
             'order_number' => $order['NUMBER'],
             'amount' => $order['TOTAL'],
@@ -318,27 +341,9 @@ class PaymentService
             'shipping_address' => $order['SHIPPING_ADD'],
             'items' => $order['ITEMS'],
             'payment_method' => $data['payment_method'],
-            'card_details' => $this->prepareCardDetails($data),
             'return_url' => $data['return_url'] ?? config('app.url') . '/payment/success',
             'cancel_url' => $data['cancel_url'] ?? config('app.url') . '/payment/cancel',
-            'metadata' => $transaction->metadata ?? [],
-        ];
-    }
-    
-    private function prepareCardDetails(array $data)
-    {
-        $paymentMethod = $data['payment_method'];
-        
-        if (!in_array($paymentMethod, ['credit_card', 'mada'])) {
-            return null;
-        }
-        
-        return [
-            'number' => $data['card_number'] ?? null,
-            'holder' => $data['card_holder'] ?? null,
-            'expiry_month' => $data['expiry_month'] ?? null,
-            'expiry_year' => $data['expiry_year'] ?? null,
-            'cvv' => $data['cvv'] ?? null,
+            'metadata' => $order['P_META'] ?? [],
         ];
     }
     
