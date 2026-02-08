@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use App\Http\Requests\InitiatePaymentRequest;
+use App\Http\Requests\Payment\InitiatePaymentRequest;
+use App\Http\Requests\Payment\ProcessPaymentRequest;
 use App\Services\PaymentService;
 
 class PaymentController extends Controller
@@ -134,7 +135,7 @@ class PaymentController extends Controller
 				'source' => 'api',
 			];
 			
-			$PaymentResult = $this->paymentService->initiateCheckout($data);
+			$PaymentResult = $this->paymentService->initiatePayment($data);
             
 			if(!$PaymentResult['success'])
 			{
@@ -170,6 +171,61 @@ class PaymentController extends Controller
         }
     }
 	
-	
+	public function processPayment(ProcessPaymentRequest $request, $orderId)
+	{
+		try {
+            $data = $request->validated();
+			$data['orderId'] = $orderId;
+			if(!auth()->check())
+			{
+				return response()->json([
+                    'success' => false,
+                    'message' => "No Permission",
+                ], 403);
+			}
+			$data['user'] = auth()->user()->id;
+			$data['user_role'] = auth()->user()->role;
+			$data['request_info'] = [
+				'user_agent' => $request->userAgent(),
+				'ip_address' => $request->ip(),
+				'method' => $request->method(),
+				'source' => 'api',
+			];
+			
+			$PaymentResult = $this->paymentService->initiateCheckout($data);
+            
+			if(!$PaymentResult['success'])
+			{
+				return response()->json([
+					'success' => false,
+					'message' => 'فشل في بدء عملية الدفع',
+					'data' => $PaymentResult['data'] ?? 'حدث خطأ غير متوقع',
+					'error' => $PaymentResult['message'] ?? 'حدث خطأ غير متوقع'
+				], 500);
+			}
+			
+            return response()->json([
+                'success' => true,
+                'message' => 'تم بدء عملية الدفع',
+                'data' => [
+                    'payment' => $PaymentResult['payment'],
+                    'order' => $PaymentResult['order'],
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Initiate checkout failed: ' . $e->getMessage(), [
+                'order' => $orderId,
+                'exception' => $e,
+                'request_data' => $request->all()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في بدء عملية الدفع',
+                'error' => config('app.debug') ? $e->getMessage() : 'حدث خطأ غير متوقع'
+            ], 500);
+        }
+	}
     
 }

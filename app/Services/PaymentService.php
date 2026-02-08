@@ -16,7 +16,7 @@ class PaymentService
         $this->paymentGatewayService = app('payment');
     }
 	
-	public function initiateCheckout($data)
+	public function initiatePayment($data)
     {
 		try {
             $user = $data['user'];
@@ -102,6 +102,81 @@ class PaymentService
 		
 	}
     
+	public function processPayment($data)
+	{
+		try {
+            $user = $data['user'];
+			if ($data['user_role'] == 'admin') {
+				$user = 0;
+			}
+				
+			$order = Order::getDataWithDetails(0,$data['orderId'],$user);
+			
+			if (!$order) {
+				return [
+					'success' => false,
+					'message' => 'الطلب غير موجود',
+					'code' =>404
+				];
+			}
+			$order = $order[0];
+			
+			$validationResult = $this->validateOrderForProcessing($order);
+			
+			if (!$validationResult['valid']) {
+				return [
+					'success' => false,
+					'message' => $validationResult['message'],
+					'data' => $validationResult['data'] ?? null,
+					'code' =>400
+					];
+			}
+			
+			return DB::transaction(function () use ($data,$order,$gateway) {
+				
+				/*$gateway = $this->paymentGatewayService->driver($data['gateway']);
+				$transaction = $this->createTransaction($order, $data);
+				
+				$paymentData = $this->preparePaymentData($order, $transaction, $data);
+				
+				//processing Payment
+				$paymentResult = $gateway->processPayment($paymentData);
+				
+				//Update Payment transaction after Payment
+				$transaction->update([
+					'gateway_transaction_id' => $paymentResult['gateway_transaction_id'] ?? null,
+					'gateway_reference' => $paymentResult['reference'] ?? null,
+					'payment_url' => $paymentResult['payment_url'] ?? null,
+					'gateway_response' => $paymentResult,
+					'status' => $paymentResult['status'] ?? 'pending',
+					'expires_at' => $paymentResult['expires_at'] ?? now()->addMinutes(30),
+				]);
+				
+				
+				return [
+					'success' => true,
+					'payment' => Payment::getDataWithDetails($transaction->pay_id),
+					'order' => Order::getDataWithDetails($order['ID']),
+					
+				];*/
+			});
+		
+		} catch (\Exception $e) {
+            \Log::error('Initiate checkout failed: ' . $e->getMessage(), [
+                'order' => $data['orderId'],
+                'exception' => $e,
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'فشل في بدء عملية الدفع',
+                'error' => config('app.debug') ? $e->getMessage() : 'حدث خطأ غير متوقع',
+				'code' =>500
+            ];
+        }
+		
+	}
+    
 	private function validateOrderForCheckout($order)
     {
         if($order['STATUS'] != 'PENDING') {
@@ -150,6 +225,56 @@ class PaymentService
             'message' => 'الطلب صالح للدفع'
         ];
     }
+	
+	private function validateOrderForProcessing($order)
+	{
+		if ($order['EXIRES'] && strtotime($order['EXIRES']) < time()) {
+			return [
+				'valid' => false,
+				'message' => 'انتهت صلاحية الطلب',
+				'data' => [
+					'order_expired' => true,
+					'expired_at' => $order->expires_at->toDateTimeString()
+				]
+			];
+		}
+    
+		if ($order['STATUS'] != 'PENDING')) {
+			return [
+				'valid' => false,
+				'message' => 'لا يمكن معالجة الدفع للطلب في حالته الحالية',
+				'data' => [
+					'current_status' => $order['STATUS'],
+				]
+			];
+		}
+		
+		if($order['P_STATUS'] && $order['P_STATUS'] === 'paid') {
+			return [
+				'valid' => false,
+				'message' => 'تم دفع الطلب مسبقاً',
+				'data' => [
+					'payment_status' => 'paid',
+					'paid_at' => $order['PAIED']
+				]
+			];
+		}
+    
+		if ($order['TOTAL'] <= 0) {
+			return [
+				'valid' => false,
+				'message' => 'المبلغ الإجمالي للطلب غير صالح للدفع',
+				'data' => [
+					'total_amount' => $order['TOTAL']
+				]
+			];
+		}
+    
+		return [
+			'valid' => true,
+			'message' => 'الطلب صالح للمعالجة'
+		];
+	}
 	
 	//New Payment Transaction
 	private function createTransaction($order , array $data)
@@ -217,4 +342,5 @@ class PaymentService
         ];
     }
     
+	
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Payment;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -53,6 +53,21 @@ class InitiatePaymentRequest extends FormRequest
             
         ];
     }
+	
+	protected function prepareForValidation(): void
+	{
+		if ($this->has('payment_method')) {
+			$this->merge(['payment_method' => strtolower($this->payment_method)]);
+		}
+		
+		if ($this->has('gateway')) {
+			$this->merge(['gateway' => strtolower($this->gateway)]);
+		}
+    
+		if ($this->has('card_number')) {
+			$this->merge(['card_number' => preg_replace('/\s+/', '', $this->card_number)]);
+		}
+	}
 	
 	public function messages(): array
     {
