@@ -1,6 +1,6 @@
 # 📦 Order & Payment Management API (Laravel)
 
-[cite_start]This project is a RESTful API designed to manage orders and payments, built with a strong focus on **SOLID principles**, **Clean Code**, and **Extensibility**[cite: 3, 18]. [cite_start]The system is architected to allow the addition of new payment gateways with minimal effort using the **Strategy Design Pattern**[cite: 4, 13, 28].
+This project is a RESTful API designed to manage orders and payments, built with a strong focus on **SOLID principles**, **Clean Code**, and **Extensibility**. The system is architected to allow the addition of new payment gateways with minimal effort using the **Strategy Design Pattern**.
 
 ---
 
