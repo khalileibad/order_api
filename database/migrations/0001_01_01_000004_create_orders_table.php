@@ -13,18 +13,24 @@ return new class extends Migration
 	{
 		Schema::create('orders', function (Blueprint $table) {
 			$table->id('o_id');
+			$table->string('order_number');
 			$table->unsignedBigInteger('cutomer');
-			$table->decimal('paid_amount');
-			$table->decimal('taxes')->default(0.15);
-			$table->enum('status', ['PAID','UNPAID','CANCELLED']);
-			$table->unsignedBigInteger('payment');
+			$table->string('currency',3);
+			$table->decimal('subtotal');
+			$table->decimal('tax')->default(0);
+			$table->decimal('shipping')->default(0);
+			$table->decimal('discount')->default(0);
+			$table->enum('status', ['PENDING','PAID','SHIPPING','CANCELLED']);
+			$table->json('shipping_address')->nullable();
+			$table->json('billing_address')->nullable();
+			$table->json('user_agent')->nullable();
+			$table->text('notes')->nullable();
 			$table->timestamps();
 			$table->foreign('cutomer')->references('id')->on('users')->onDelete('restrict')->onUpdate('restrict');
-			$table->foreign('payment')->references('id')->on('payments')->onDelete('restrict')->onUpdate('restrict');
 			
 		});
 	}
-
+	
 	/**
 	 * Reverse the migrations.
 	 */

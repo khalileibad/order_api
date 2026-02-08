@@ -41,5 +41,10 @@ abstract class AbstractGateway implements PaymentGatewayInterface
         ];
     }
     
+	public function getSupportedMethod(): array
+    {
+		return $this->config['supported_methods'];
+	}
+	
     abstract protected function getRequiredConfig(): array;
 }

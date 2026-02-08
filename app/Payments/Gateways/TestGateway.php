@@ -58,4 +58,11 @@ class TestGateway extends AbstractGateway
     {
         return []; // لا يحتاج إعدادات
     }
+	
+	public function getSupportedMethod(): array
+    {
+		return $this->config['supported_methods'];
+	}
+	
+	
 }

@@ -169,7 +169,12 @@ class PayPalGateway implements PaymentGatewayInterface
         ];
     }
     
-    public function validateConfig(array $config): bool
+    public function getSupportedMethod(): array
+    {
+		return $this->config['supported_methods'];
+	}
+	
+	public function validateConfig(array $config): bool
     {
         $required = $this->getRequiredConfig();
         

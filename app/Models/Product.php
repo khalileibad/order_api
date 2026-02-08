@@ -65,12 +65,10 @@ class Product extends Model implements Auditable
 		return $this->belongsTo(Category::class, self::getFieldMapping()['CAT'], Category::getFieldMapping()['CAT_ID']);
 	}
 	
-	/*public function orders()
-    {
-        return $this->belongsToMany(Order::class, 'order_items')
-            ->withPivot('quantity', 'unit_price', 'total_price')
-            ->withTimestamps();
-    }*/
+	public function orders()
+	{
+		return $this->hasMany(OrderItem::class, OrderItem::getFieldMapping()['PRODUCT'], self::getFieldMapping()['ID']);
+	}
 	
 	public static function getDataWithDetails(int $id = 0,int $category = 0,$active = null,$stock = null)
 	{
@@ -84,10 +82,10 @@ class Product extends Model implements Auditable
 		);
 		$query = self::query();
 		$query->select($fields);
-		/*$query->withCount([
+		$query->withCount([
 			'orders as ORDERS'
 		]);
-		*/
+		
 		$query->when($id != 0, fn($q) => $q->where(self::getFieldMapping()['ID'], $id));
 		$query->when($category != 0, fn($q) => $q->where(self::getFieldMapping()['CAT'], $category));
 		$query->when($active != null, fn($q) => $q->where(self::getFieldMapping()['ACTICE'], $category));

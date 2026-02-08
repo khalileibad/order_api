@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product as PRODUCTS;
-use App\Models\Category as CATEGORIES;
 use App\Http\Requests\productRequest;
 
 class ProductController extends Controller
@@ -14,7 +13,6 @@ class ProductController extends Controller
 	public function index(Request $request, int $id = 0)
 	{
 		try{
-			
 			$id 		= (int) $request->input('id', $id);
 			$category 	= (int) $request->input('category_id', 0);
 			$active 	= $request->input('active', null);
@@ -50,16 +48,6 @@ class ProductController extends Controller
         }
 		
 	}
-	
-	//Get Categories
-	public function categories(Request $request, int $id = 0)
-	{
-		return response()->json([
-                'success' => true,
-                'data' => CATEGORIES::getDataWithDetails($id),
-            ]);
-	}
-	
 	
 	//Create New Product
     public function new_product(productRequest $request)

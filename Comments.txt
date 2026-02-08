@@ -1,4 +1,7 @@
 * Update Profile Not Don
 * search product & get single product & get All Products in single function
 * * Same In Categories
+* * Same In Orders
 * public and Customer access of products just for available products
+* In Update Order No New products
+* No Cancel Order

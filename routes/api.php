@@ -49,22 +49,26 @@ Route::prefix('admin')->middleware(['auth:api', 'role:admin'])->group(function (
     
 });
 
-
 // ==================== Customer Routes ====================
 Route::prefix('orders')->middleware(['auth:api', 'role:customer'])->group(function () {
+	Route::get('/', [OrderController::class, 'index']);
+    Route::get('/{order_id}', [OrderController::class, 'index']);
+	Route::post('/create', [OrderController::class, 'new_order']);
+	Route::post('/{order_id}', [OrderController::class, 'update_order']);
+	
+});
+
+Route::prefix('payments')->middleware(['auth:api', 'role:customer'])->group(function () {
 	Route::get('/gateway', [PaymentController::class, 'index']);
 	Route::get('/gateway/{id}', [PaymentController::class, 'show']);
 	
-    Route::post('/create', [OrderController::class, 'createOrder']);
+	Route::post('/initiate/{order_id}', [PaymentController::class, 'initiate']);
 	
+	/*Route::get('/gateway/{id}', [PaymentController::class, 'show']);
 	
-	
-	
-	/*Route::prefix('products')->group(function () {
-        
-        Route::post('/', [ProductController::class, 'new_product']);
-        Route::post('/{id}', [ProductController::class, 'update_product']);
-        Route::delete('/{id}', [ProductController::class, 'delete_product']);
-	});
-    */
+    Route::get('/', [OrderController::class, 'index']);
+    Route::get('/{order_id}', [OrderController::class, 'index']);
+	Route::post('/create', [OrderController::class, 'new_order']);
+	Route::post('/{order_id}', [OrderController::class, 'update_order']);
+	*/
 });
