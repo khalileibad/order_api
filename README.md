@@ -34,7 +34,7 @@ This ensures the system is **Open for extension but Closed for modification**.
 
 ---
 
-#### ✅ API Testing & Documentation
-In addition to the internal PHPUnit tests, you can find a comprehensive set of test cases within the Postman collection:
-**Postman Collection**: `Order API.postman_collection.json`
-
+#### 📂 API Documentation (Postman)
+The repository includes a Postman collection file (`Order API.postman_collection.json`) to assist in exploring the API.
+- **Purpose**: Provides a clear map of all endpoints, required variables, and expected request bodies.
+- **Examples**: Includes templates for Success and Error scenarios to guide integration.

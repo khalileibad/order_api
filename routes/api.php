@@ -64,11 +64,4 @@ Route::prefix('payments')->middleware(['auth:api', 'role:customer'])->group(func
 	
 	Route::post('/initiate/{order_id}', [PaymentController::class, 'initiate']);
 	
-	/*Route::get('/gateway/{id}', [PaymentController::class, 'show']);
-	
-    Route::get('/', [OrderController::class, 'index']);
-    Route::get('/{order_id}', [OrderController::class, 'index']);
-	Route::post('/create', [OrderController::class, 'new_order']);
-	Route::post('/{order_id}', [OrderController::class, 'update_order']);
-	*/
 });
