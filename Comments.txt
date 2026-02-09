@@ -5,3 +5,5 @@
 * public and Customer access of products just for available products
 * In Update Order No New products
 * No Cancel Order
+* Confirm payment not compleated 
+* Cancel payment not compleated 

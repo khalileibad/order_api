@@ -928,14 +928,14 @@
           "response": []
         },
         {
-          "name": "New Payment",
+          "name": "Initiate Payment",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L29yZGVyX2FwaS9hcGkvYXV0aC9yZWZyZXNoIiwiaWF0IjoxNzcwNDc0OTc1LCJleHAiOjE3NzA0OTUxMzMsIm5iZiI6MTc3MDQ5MTUzMywianRpIjoiSWhpSHZrd2UxWXZCamxoaSIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6ImN1c3RvbWVyIiwibmFtZSI6IlRlc3QgQ3VzdG9tZXIiLCJlbWFpbCI6ImN1c3RvbWVyQHRvY2Fhbi50ZXN0In0.2cGUlFzHqtmmZuji4c9L22OPJsqhpVzVl294yzpS8FM",
+                  "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L29yZGVyX2FwaS9hcGkvYXV0aC9yZWZyZXNoIiwiaWF0IjoxNzcwNDc0OTc1LCJleHAiOjE3NzA1NjM4ODEsIm5iZiI6MTc3MDU2MDI4MSwianRpIjoia0hLT3NKSVV5RjFOTWNETiIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6ImN1c3RvbWVyIiwibmFtZSI6IlRlc3QgQ3VzdG9tZXIiLCJlbWFpbCI6ImN1c3RvbWVyQHRvY2Fhbi50ZXN0In0.1Lpw9b3I4Fx8SAUsPQBC6HW9hs7yC968NPZ4GeG0H6A",
                   "type": "string"
                 }
               ]
@@ -970,7 +970,7 @@
                 },
                 {
                   "key": "card_number",
-                  "value": "asdasdasdasdasdas",
+                  "value": "1234567765432345",
                   "type": "text",
                   "uuid": "ee26f40b-ee6d-4f4e-831b-2f40384a44d4"
                 },
@@ -1011,6 +1011,66 @@
                 "api",
                 "payments",
                 "initiate",
+                "ORD-20260207-CDAA4J"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "process Payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L29yZGVyX2FwaS9hcGkvYXV0aC9yZWZyZXNoIiwiaWF0IjoxNzcwNDc0OTc1LCJleHAiOjE3NzA1NjM4ODEsIm5iZiI6MTc3MDU2MDI4MSwianRpIjoia0hLT3NKSVV5RjFOTWNETiIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6ImN1c3RvbWVyIiwibmFtZSI6IlRlc3QgQ3VzdG9tZXIiLCJlbWFpbCI6ImN1c3RvbWVyQHRvY2Fhbi50ZXN0In0.1Lpw9b3I4Fx8SAUsPQBC6HW9hs7yC968NPZ4GeG0H6A",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "transaction_id",
+                  "value": "pi_6988C27BEF7E7",
+                  "type": "text",
+                  "uuid": "c11b737a-2ad5-4dcb-a96d-5a2cd3d4fdc8"
+                },
+                {
+                  "key": "payment_token",
+                  "value": "token_6988C27BEF7E7",
+                  "type": "text",
+                  "uuid": "44ccd4fc-1bec-4267-87c3-94e877043717"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/order_api/api/payments/process/ORD-20260207-CDAA4J",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "order_api",
+                "api",
+                "payments",
+                "process",
                 "ORD-20260207-CDAA4J"
               ]
             }

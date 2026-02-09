@@ -55,7 +55,7 @@ Route::prefix('orders')->middleware(['auth:api', 'role:customer'])->group(functi
     Route::get('/{order_id}', [OrderController::class, 'index']);
 	Route::post('/create', [OrderController::class, 'new_order']);
 	Route::post('/{order_id}', [OrderController::class, 'update_order']);
-	
+	//Route::post('/{order_id}/cancel', [OrderController::class, 'cancelOrder']);
 });
 
 Route::prefix('payments')->middleware(['auth:api', 'role:customer'])->group(function () {
@@ -64,5 +64,8 @@ Route::prefix('payments')->middleware(['auth:api', 'role:customer'])->group(func
 	
 	Route::post('/initiate/{order_id}', [PaymentController::class, 'initiate']);
 	Route::post('/process/{order_id}', [PaymentController::class, 'processPayment']);
-            
+	//Route::post('/process/{order_id}', [PaymentController::class, 'processPayment']);
+	//Route::get('/status/{transaction_id}', [TransactionController::class, 'getPaymentStatus']);
+    //Route::post('/refund', [TransactionController::class, 'refundPayment']);
+    
 });

@@ -150,7 +150,6 @@ class PaymentService
 				
 				$meta = $order['P_META'] ?? "{}";
 				$meta = (array) json_decode($meta);
-				\Log::info(gettype($meta));
 				
 				$meta = array_merge($meta,['gateway_payment_response' => $paymentResult]);
 				\Log::info($meta);
